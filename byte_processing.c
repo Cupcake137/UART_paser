@@ -9,39 +9,85 @@ void process_byte(uint8_t byte) {
     cb_push(&cb, byte);
 }
 
-int detect_parser_frame(CircularBuffer *cb, uint8_t *frame_data) {
-    if(cb->count < 5) {
-        return -1; // Not enough data for a frame
+int detect_parser_frame(CircularBuffer *cb, Frame *frame_data) {
+    //frame_data->header = 0xAA; // Set expected header value
+    uint8_t byte;
+    uint8_t len;
+    uint8_t crc_calculated = 0;
+    uint8_t total_frame_size;
+
+    if (cb == NULL || frame_data == NULL) {
+        return -1; // Invalid arguments
     }
 
-    if(cb->buff[cb->tail] == 0xAA) { // Start byte
-        int frame_length = cb->buff[(cb->tail + 1) % BUFFER_SIZE]; // Length byte
-        if(frame_length > 0 && frame_length <= 3) { // Valid length
-            for(int i = 0; i < frame_length; i++) {
-                frame_data[i] = cb->buff[(cb->tail + 2 + i) % BUFFER_SIZE]; // Data bytes
-            }
-            return frame_length; // Return the length of the frame data
-        }
-    } else {
-        // If the start byte is not found, pop the byte to move forward
-        uint8_t temp;
-        cb_pop(cb, &temp);
+    if (cb->count < 1) {
+        return 0; // Not enough data to detect frame
     }
-    return -1; // No valid frame found
 
-    uint8_t checksum_index = (cb->tail + 2 + frame_length) % BUFFER_SIZE;
-    if (checksum_index < BUFFER_SIZE) {
-        uint8_t checksum = cb->buff[checksum_index];
-        uint8_t calculated_checksum = 0;
-        for(int i = 0; i < frame_length; i++) {
-            calculated_checksum += frame_data[i];
-        }
-        if(calculated_checksum == checksum) {
-            return frame_length; // Valid frame with correct checksum
-        }
-    }
-    return -1; // Invalid frame or checksum
+    if (cb_peek(cb, 0, &frame_data->header) != 0) {
+        return -1; // Failed to peek header 
+    } // Check header byte
 
-    //parse frame and validate checksum
     
+    cb_peek(cb, 0, &frame_data->header);
+    if (frame_data->header != 0xAA) {
+        cb_pop(cb, &byte);  // Remove invalid byte
+        printf("Invalid header byte: %d\n", frame_data->header);
+        return -1; // Invalid header
+    }
+
+    if (cb->count < 2) {
+        return 0; // Not enough data to read length
+    }
+
+    if (cb_peek(cb, 1, &len) != 0) {
+        return -1; // Failed to peek length
+    }
+
+    if (len > sizeof(frame_data->data)) {
+        cb_pop(cb, &byte); // Remove header byte
+        printf("Invalid length byte: %d\n", len);
+        return -1; // Invalid length
+    }  
+
+    total_frame_size = 2 + len + 1; // header + len + data + crc
+    if (cb->count < total_frame_size) {
+        return 0; // Not enough data to read full frame
+    }
+
+    frame_data->len = len;
+
+    for(int i = 0; i < len; i++){
+        if (cb_peek(cb, 2 + i, &frame_data->data[i]) != 0) {
+            return -1; // Failed to peek data byte
+        }
+        crc_calculated ^= frame_data->data[i];
+    }
+
+    // cb_peek(cb, 2 + len, &frame_data->crc);
+    // for(int i = 0; i < len; i++){
+    //     crc_calculated ^= frame_data->data[i];
+    // }
+
+    if (cb_peek(cb, 2 + len, &frame_data->crc) != 0) {
+        return -1; // Failed to peek CRC byte
+    }
+
+    if (crc_calculated != frame_data->crc) {
+        cb_pop(cb, &byte); // Remove header byte
+        printf("CRC mismatch: calculated %d, expected %d\n", crc_calculated, frame_data->crc);
+        return -1; // CRC mismatch
+    }
+
+    //printf("Popped: %d\n", frame_data->header);
+    for (int i = 0; i < total_frame_size; i++) {
+        if (cb_pop(cb, &byte) != 0) {
+            return -1; // Failed to pop byte
+        }
+
+        cb_pop(cb, &byte); // Remove the frame from buffer
+        printf("Popped byte: %d\n", byte);
+    }
+
+    return 1; // Frame detected successfully
 }
