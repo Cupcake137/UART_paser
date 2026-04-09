@@ -1,7 +1,8 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
-TARGET = test_uart
-SRCS = main.c buffer.c byte_processing.c
+CFLAGS = -Wall -Wextra -std=c11 -Iinc
+TARGET = uart_parser
+
+SRCS = src/main.c src/buffer.c src/byte_processing.c src/file_handle.c
 OBJS = $(SRCS:.c=.o)
 
 .PHONY: all run clean
@@ -11,11 +12,11 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
-%.o: %.c buffer.h byte_processing.h
+src/%.o: src/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: $(TARGET)
-	.\$(TARGET)
+	./$(TARGET)
 
 clean:
-	cmd /C del /Q $(OBJS) $(TARGET).exe 2>nul || exit 0
+	rm -f $(OBJS) $(TARGET)

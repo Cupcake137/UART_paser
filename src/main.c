@@ -3,6 +3,7 @@
 
 #include "buffer.h"
 #include "byte_processing.h"
+#include "file_handle.h"
 
 uint8_t stream_1[] = {0xAA, 0x03, 0x10, 0x20, 0x30, 0x00}; // Example byte stream
 uint8_t stream_2[] = {0xAA, 0x02, 0x40, 0x50, 0x90}; // Another example byte stream 
@@ -14,6 +15,9 @@ int main() {
     cb_init(&cb);
     Frame frame_data;
 
+    //open test file
+    open_test_file();
+    
     // Push some data into the buffer
     for (int i = 0; i < sizeof(stream_1); i++) {
         if (cb_push(&cb, stream_1[i]) != 0) {
