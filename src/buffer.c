@@ -32,14 +32,6 @@ int cb_pop(CircularBuffer *cb, uint8_t *data) {
     return 0; // Success
 }
 
-// int cb_peek(CircuarBuffer *cb, int i, uint8_t *data) {
-//     if(i < 0 || i >= cb->count) {
-//         return -1; // Index out of bounds
-//     }
-//     *data = cb->buff[cb->tail];
-//     return 0; // Success
-// }
-
 int cb_peek(CircularBuffer *cb, int index, uint8_t *data) {
     if(index < 0 || index >= cb->count) {
         return -1; // Index out of bounds
