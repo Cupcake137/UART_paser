@@ -5,9 +5,9 @@
 
 CircularBuffer cb;
 
-void process_byte(uint8_t byte) {
-    cb_push(&cb, byte);
-}
+// void process_byte(uint8_t byte) {
+//     cb_push(&cb, byte);
+// }
 
 int detect_parser_frame(CircularBuffer *cb, Frame *frame_data) {
     //frame_data->header = 0xAA; // Set expected header value
@@ -28,11 +28,11 @@ int detect_parser_frame(CircularBuffer *cb, Frame *frame_data) {
         return -1; // Failed to peek header 
     } // Check header byte
 
-    
-    cb_peek(cb, 0, &frame_data->header);
+    //cb_peek(cb, 0, &frame_data->header);
+
     if (frame_data->header != 0xAA) {
         cb_pop(cb, &byte);  // Remove invalid byte
-        printf("Invalid header byte: %d\n", frame_data->header);
+        //printf("Invalid header byte: %d\n", frame_data->header);
         return -1; // Invalid header
     }
 
@@ -46,11 +46,11 @@ int detect_parser_frame(CircularBuffer *cb, Frame *frame_data) {
 
     if (len > sizeof(frame_data->data)) {
         cb_pop(cb, &byte); // Remove header byte
-        printf("Invalid length byte: %d\n", len);
+        //printf("Invalid length byte: %d\n", len);
         return -1; // Invalid length
     }  
 
-    total_frame_size = 2 + len + 1; // header + len + data + crc
+    total_frame_size = 1 + 1 + len + 1; // header + len + data + crc
     if (cb->count < total_frame_size) {
         return 0; // Not enough data to read full frame
     }
@@ -75,7 +75,7 @@ int detect_parser_frame(CircularBuffer *cb, Frame *frame_data) {
 
     if (crc_calculated != frame_data->crc) {
         cb_pop(cb, &byte); // Remove header byte
-        printf("CRC mismatch: calculated %d, expected %d\n", crc_calculated, frame_data->crc);
+        //printf("CRC mismatch: calculated %d, expected %d\n", crc_calculated, frame_data->crc);
         return -1; // CRC mismatch
     }
 
@@ -84,9 +84,7 @@ int detect_parser_frame(CircularBuffer *cb, Frame *frame_data) {
         if (cb_pop(cb, &byte) != 0) {
             return -1; // Failed to pop byte
         }
-
-        cb_pop(cb, &byte); // Remove the frame from buffer
-        printf("Popped byte: %d\n", byte);
+        //printf("Popped byte: %d\n", byte);
     }
 
     return 1; // Frame detected successfully

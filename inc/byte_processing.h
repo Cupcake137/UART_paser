@@ -10,7 +10,7 @@ typedef struct {
     uint8_t crc;
 } Frame;
 
-void process_byte(uint8_t byte);
+//void process_byte(uint8_t byte);
 int detect_parser_frame(CircularBuffer *cb, Frame *frame);
 
 #endif // BYTE_PROCESSING_H

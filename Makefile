@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -Iinc
+CFLAGS = -g -Wall -Wextra -std=c11 -Iinc
 TARGET = uart_parser
 
 SRCS = src/main.c src/buffer.c src/byte_processing.c src/file_handle.c

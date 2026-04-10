@@ -10,14 +10,14 @@ uint8_t stream_2[] = {0xAA, 0x02, 0x40, 0x50, 0x90}; // Another example byte str
 uint8_t stream_3[] = {0xAB, 0x01, 0x60, 0x60}; // Invalid header example
 
 
-int main() {
+int main(void) {
     CircularBuffer cb;
+    Frame frame;
+
     cb_init(&cb);
-    Frame frame_data;
-    int fp;
 
     //open test file
-    fp = file_handler();
+    process_test_file("./test/stream_test.txt", &cb, &frame);
     
     // Push some data into the buffer
     // for (int i = 0; i < sizeof(stream_1); i++) {
@@ -27,18 +27,17 @@ int main() {
     // }
 
     // Peek at the first 5 elements
-    printf("Peeking at buffer:\n");
-    for(int i = 0; i < sizeof(fp); i++) {
-        //uint8_t data;
-        if(cb_peek(&cb, i, &frame_data.data[i]) == 0) {
-            printf("Index %d: %d\n", i, frame_data.data[i]);
-        } else {
-            printf("Index %d: Out of bounds\n", i);
-        }
-    }
-
+    // printf("Peeking at buffer:\n");
+    // for(int i = 0; i < sizeof(cb); i++) {
+    //     //uint8_t data;
+    //     if(cb_peek(&cb, i, &frame.data[i]) == 0) {
+    //         printf("Index %d: %d\n", i, frame.data[i]);
+    //     } else {
+    //         printf("Index %d: Out of bounds\n", i);
+    //     }
+    // }
     
-    if (detect_parser_frame(&cb, &frame_data) == 1) {
+    if (detect_parser_frame(&cb, &frame) == 1) {
         printf("Frame detected successfully.\n");
 
          // Pop all elements from the buffer
