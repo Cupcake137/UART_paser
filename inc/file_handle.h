@@ -3,6 +3,6 @@
 
 #include<stdint.h>
 
-void open_test_file(void);
+int file_handler(void);
 
 #endif //FILE_HANDLE_H

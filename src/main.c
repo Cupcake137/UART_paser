@@ -14,20 +14,21 @@ int main() {
     CircularBuffer cb;
     cb_init(&cb);
     Frame frame_data;
+    int fp;
 
     //open test file
-    open_test_file();
+    fp = file_handler();
     
     // Push some data into the buffer
-    for (int i = 0; i < sizeof(stream_1); i++) {
-        if (cb_push(&cb, stream_1[i]) != 0) {
-            printf("Buffer is full, cannot push byte: %d\n", stream_1[i]);
-        }
-    }
+    // for (int i = 0; i < sizeof(stream_1); i++) {
+    //     if (cb_push(&cb, stream_1[i]) != 0) {
+    //         printf("Buffer is full, cannot push byte: %d\n", stream_1[i]);
+    //     }
+    // }
 
     // Peek at the first 5 elements
     printf("Peeking at buffer:\n");
-    for(int i = 0; i < sizeof(stream_1); i++) {
+    for(int i = 0; i < sizeof(fp); i++) {
         //uint8_t data;
         if(cb_peek(&cb, i, &frame_data.data[i]) == 0) {
             printf("Index %d: %d\n", i, frame_data.data[i]);
@@ -50,6 +51,5 @@ int main() {
         printf("No valid frame detected.\n");
     }
 
-   
     return 0;
 }

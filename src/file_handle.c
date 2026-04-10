@@ -1,19 +1,22 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "file_handle.h"
+#include "buffer.h"
 
-void open_test_file(void) {
+int file_handler(void) {
     size_t ret;
     unsigned char buffer[64];
-    unsigned int value;
+    uint8_t byte;
+    CircularBuffer *cb;    
 
     FILE* filePath = fopen("./test/stream_test.txt", "r");
 
     if (filePath == NULL) {
         printf("Cannot open file!!!\n");
-        return;
+        return 0;
     } else{
         printf("Open file successful!!!\n");
+        return 1;
     }
     
     // ret = fread(buffer, sizeof(*buffer), 5, filePath);
@@ -27,13 +30,22 @@ void open_test_file(void) {
     //     printf("\n");
     // }
 
-    while (fscanf(filePath, "%2x", &value) == 1) {
-        printf("0x%02X\n", value & 0xFF);
+    while (fscanf(filePath, "%2x", &byte) == 1) {
+        if (byte == NULL) {
+            printf("Cannot read value in file\n");
+            return 0;
+        }
+        else {
+            //process_byte(byte);
+            cb_push(&cb, byte);
+            printf("Push stream int file into buffer successful\n");
+            return 1;
+        }
     }
 
     fclose(filePath);
 }
 
-void read_test_file(void) {
-    
+void feed_test_stream(CircularBuffer *cb) {
+
 }
