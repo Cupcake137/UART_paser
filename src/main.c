@@ -5,10 +5,9 @@
 #include "byte_processing.h"
 #include "file_handle.h"
 
-uint8_t stream_1[] = {0xAA, 0x03, 0x10, 0x20, 0x30, 0x00}; // Example byte stream
-uint8_t stream_2[] = {0xAA, 0x02, 0x40, 0x50, 0x90}; // Another example byte stream 
-uint8_t stream_3[] = {0xAB, 0x01, 0x60, 0x60}; // Invalid header example
-
+// uint8_t stream_1[] = {0xAA, 0x03, 0x10, 0x20, 0x30, 0x00}; // Example byte stream
+// uint8_t stream_2[] = {0xAA, 0x02, 0x40, 0x50, 0x90}; // Another example byte stream 
+// uint8_t stream_3[] = {0xAB, 0x01, 0x60, 0x60}; // Invalid header example
 
 int main(void) {
     CircularBuffer cb;
@@ -37,18 +36,18 @@ int main(void) {
     //     }
     // }
     
-    if (detect_parser_frame(&cb, &frame) == 1) {
-        printf("Frame detected successfully.\n");
+    // if (detect_parser_frame(&cb, &frame) == 1) {
+    //     printf("Frame detected successfully.\n");
 
-         // Pop all elements from the buffer
-        // printf("\nPopping from buffer:\n");
-        // uint8_t data;
-        // while(cb_pop(&cb, &frame_data.data[0]) == 0) {
-        //     printf("Popped: %hhn\n", frame_data.data[0]);
-        // }
-    } else {
-        printf("No valid frame detected.\n");
-    }
+    //      // Pop all elements from the buffer
+    //     // printf("\nPopping from buffer:\n");
+    //     // uint8_t data;
+    //     // while(cb_pop(&cb, &frame_data.data[0]) == 0) {
+    //     //     printf("Popped: %hhn\n", frame_data.data[0]);
+    //     // }
+    // } else {
+    //     printf("No valid frame detected.\n");
+    // }
 
     return 0;
 }

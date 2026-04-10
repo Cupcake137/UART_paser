@@ -7,6 +7,35 @@
 int process_test_file(const char *path, CircularBuffer *cb, Frame *frame) {
     FILE *fp = fopen(path, "r");
     unsigned int value;
+    ParserStatus ret;
+
+    switch (ret) {
+                case PARSER_OK:
+                    break;
+
+                case PARSER_WAIT:
+                    break;
+
+                case PARSER_RESYNC:
+                    printf("[RESYNC] Invalid header byte, dropped 1 byte\n");
+                    break;
+
+                case PARSER_CRC_ERROR:
+                    printf("[ERROR] CRC mismatch\n");
+                    break;
+
+                case PARSER_LEN_ERROR:
+                    printf("[ERROR] Length too large\n");
+                    break;
+
+                case PARSER_BUFFER_ERROR:
+                    printf("[ERROR] Buffer operation failed\n");
+                    break;
+
+                case PARSER_ARG_ERROR:
+                    printf("[ERROR] Invalid parser arguments\n");
+                    return -1;
+    }
     
     if (fp == NULL) {
         printf("Cannot open file\n");
@@ -17,21 +46,49 @@ int process_test_file(const char *path, CircularBuffer *cb, Frame *frame) {
         uint8_t byte = (uint8_t)value;
 
         if (cb_push(cb, byte) != 0) {
-            printf("Buffer full\n");
+            printf("[ERROR] Buffer full\n");
             fclose(fp);
             return -1;
         }
 
-        int ret = detect_parser_frame(cb, frame);
+        while (1) {
+            ret = detect_parser_frame(cb, frame);
 
-        if (ret == 1) {
-            printf("Frame OK: len = %u\n", frame->len);
-        } else if (ret == -1) {
-            printf("Invalid frame\n");
+            if (ret == PARSER_OK) {
+                printf("Frame OK: H = %02X LEN = %u ", frame->header, frame->len);
+                    for (int i = 0; i < frame->len; i++) {
+                        printf("%02X ",  frame->data[i]);
+                    }
+                printf("CRC = %02X\n", frame->crc);
+                continue;
+            }
+            
+            if (ret == PARSER_WAIT) {
+                break;
+            }
+
+            if (ret == PARSER_RESYNC) {
+                printf("[RESYNC] Dropped invalid byte\n");
+                continue;
+            }
+
+            if (ret == PARSER_CRC_ERROR) {
+                printf("[ERROR] CRC mismatch\n");
+                continue;
+            }
+
+            if (ret == PARSER_LEN_ERROR) {
+                printf("[ERROR] Invalid length\n");
+                continue;
+            }
+
+            if (ret == PARSER_BUFFER_ERROR || ret == PARSER_ARG_ERROR) {
+                printf("[ERROR] Fatal parser error\n");
+                fclose(fp);
+                return -1;
+            }
         }
-    } 
-
-    fclose(fp);
+    }
 
     return 0;
 }
