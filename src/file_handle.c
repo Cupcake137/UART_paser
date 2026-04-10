@@ -9,33 +9,7 @@ int process_test_file(const char *path, CircularBuffer *cb, Frame *frame) {
     unsigned int value;
     ParserStatus ret;
 
-    switch (ret) {
-                case PARSER_OK:
-                    break;
-
-                case PARSER_WAIT:
-                    break;
-
-                case PARSER_RESYNC:
-                    printf("[RESYNC] Invalid header byte, dropped 1 byte\n");
-                    break;
-
-                case PARSER_CRC_ERROR:
-                    printf("[ERROR] CRC mismatch\n");
-                    break;
-
-                case PARSER_LEN_ERROR:
-                    printf("[ERROR] Length too large\n");
-                    break;
-
-                case PARSER_BUFFER_ERROR:
-                    printf("[ERROR] Buffer operation failed\n");
-                    break;
-
-                case PARSER_ARG_ERROR:
-                    printf("[ERROR] Invalid parser arguments\n");
-                    return -1;
-    }
+    
     
     if (fp == NULL) {
         printf("Cannot open file\n");
@@ -53,7 +27,7 @@ int process_test_file(const char *path, CircularBuffer *cb, Frame *frame) {
 
         while (1) {
             ret = detect_parser_frame(cb, frame);
-
+           
             if (ret == PARSER_OK) {
                 printf("Frame OK: H = %02X LEN = %u ", frame->header, frame->len);
                     for (int i = 0; i < frame->len; i++) {
@@ -92,3 +66,35 @@ int process_test_file(const char *path, CircularBuffer *cb, Frame *frame) {
 
     return 0;
 }
+
+
+
+
+
+ // switch (ret) {
+            //     case PARSER_OK:
+            //         break;
+
+            //     case PARSER_WAIT:
+            //         break;
+
+            //     case PARSER_RESYNC:
+            //         printf("[RESYNC] Invalid header byte, dropped 1 byte\n");
+            //         break;
+
+            //     case PARSER_CRC_ERROR:
+            //         printf("[ERROR] CRC mismatch\n");
+            //         break;
+
+            //     case PARSER_LEN_ERROR:
+            //         printf("[ERROR] Length too large\n");
+            //         break;
+
+            //     case PARSER_BUFFER_ERROR:
+            //         printf("[ERROR] Buffer operation failed\n");
+            //         break;
+
+            //     case PARSER_ARG_ERROR:
+            //         printf("[ERROR] Invalid parser arguments\n");
+            //         return -1;
+            // }
